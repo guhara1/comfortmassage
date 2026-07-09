@@ -110,14 +110,14 @@ export default async function RegionPage({
               <div className="flex items-baseline justify-between mb-4">
                 <h2 className="text-2xl font-bold text-gray-900">
                   <a
-                    href={`/area/${c.slug}`}
+                    href={`/${c.slug}`}
                     className="hover:text-orange-600 transition"
                   >
                     {c.name}
                   </a>
                 </h2>
                 <a
-                  href={`/area/${c.slug}`}
+                  href={`/${c.slug}`}
                   className="text-sm text-orange-600 hover:text-orange-700 font-semibold"
                 >
                   {c.name} 전체 보기 →
@@ -127,7 +127,7 @@ export default async function RegionPage({
                 {c.districts.map((d) => (
                   <a
                     key={d.slug}
-                    href={`/area/${c.slug}/${d.slug}`}
+                    href={`/${c.slug}/gu/${d.slug}`}
                     className="block p-3 bg-white border border-gray-200 rounded hover:shadow-md hover:border-orange-300 transition text-center text-sm"
                   >
                     <span className="font-medium text-gray-900">{d.name}</span>

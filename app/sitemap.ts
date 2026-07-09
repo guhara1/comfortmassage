@@ -1,53 +1,57 @@
 import { MetadataRoute } from 'next';
 import { regions } from '@/lib/regions';
+import { PROGRAMS, USES, CHECKS, INFO } from '@/lib/cityMenu';
+import { SEOUL_AREA_GROUPS, SEOUL_LIFE_ZONES, cityHasAreaGroups } from '@/lib/seoul';
 
 export const dynamic = 'force-static';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://gandago-massage.com';
   const now = new Date().toISOString().split('T')[0];
+  const e = (
+    path: string,
+    priority: number,
+    changeFrequency: 'daily' | 'weekly' | 'monthly' = 'weekly'
+  ) => ({ url: `${baseUrl}${path}`, lastModified: now, changeFrequency, priority });
 
-  const staticPages: MetadataRoute.Sitemap = [
-    { url: baseUrl, lastModified: now, changeFrequency: 'daily', priority: 1 },
-    { url: `${baseUrl}/region`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${baseUrl}/program`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${baseUrl}/program/swedish`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${baseUrl}/check`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${baseUrl}/check/address`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${baseUrl}/use`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${baseUrl}/use/hotel`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${baseUrl}/contact`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${baseUrl}/inquiry`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${baseUrl}/privacy`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${baseUrl}/service-policy`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
+  const out: MetadataRoute.Sitemap = [
+    e('', 1, 'daily'),
+    e('/region', 0.9),
+    e('/program', 0.8),
+    e('/use', 0.8),
+    e('/check', 0.8),
+    e('/contact', 0.7, 'monthly'),
+    e('/inquiry', 0.6, 'monthly'),
+    e('/privacy', 0.5, 'monthly'),
+    e('/service-policy', 0.5, 'monthly'),
   ];
 
-  const regionPages: MetadataRoute.Sitemap = regions.map((r) => ({
-    url: `${baseUrl}/region/${r.slug}`,
-    lastModified: now,
-    changeFrequency: 'weekly',
-    priority: 0.8,
-  }));
+  // 권역
+  regions.forEach((r) => out.push(e(`/region/${r.slug}`, 0.8)));
 
-  const cityPages: MetadataRoute.Sitemap = regions.flatMap((r) =>
-    r.cities.map((c) => ({
-      url: `${baseUrl}/area/${c.slug}`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
-    }))
+  // 도시별 페이지
+  regions.forEach((r) =>
+    r.cities.forEach((c) => {
+      const b = `/${c.slug}`;
+      out.push(e(b, 0.8, 'daily'));
+      out.push(e(`${b}/gu`, 0.7));
+      c.districts.forEach((d) => out.push(e(`${b}/gu/${d.slug}`, 0.6)));
+      out.push(e(`${b}/program`, 0.6));
+      PROGRAMS.forEach((p) => out.push(e(`${b}/program/${p.slug}`, 0.5)));
+      out.push(e(`${b}/use`, 0.6));
+      USES.forEach((u) => out.push(e(`${b}/use/${u.slug}`, 0.5)));
+      out.push(e(`${b}/check`, 0.6));
+      CHECKS.forEach((ch) => out.push(e(`${b}/check/${ch.slug}`, 0.5)));
+      INFO.forEach((i) => out.push(e(`${b}/${i.slug}`, 0.4, 'monthly')));
+
+      // 서울 전용: 5대 권역 + 생활권
+      if (cityHasAreaGroups(c.slug)) {
+        out.push(e(`${b}/life`, 0.6));
+        SEOUL_AREA_GROUPS.forEach((g) => out.push(e(`${b}/area/${g.slug}`, 0.6)));
+        SEOUL_LIFE_ZONES.forEach((z) => out.push(e(`${b}/life/${z.slug}`, 0.6)));
+      }
+    })
   );
 
-  const districtPages: MetadataRoute.Sitemap = regions.flatMap((r) =>
-    r.cities.flatMap((c) =>
-      c.districts.map((d) => ({
-        url: `${baseUrl}/area/${c.slug}/${d.slug}`,
-        lastModified: now,
-        changeFrequency: 'weekly' as const,
-        priority: 0.6,
-      }))
-    )
-  );
-
-  return [...staticPages, ...regionPages, ...cityPages, ...districtPages];
+  return out;
 }

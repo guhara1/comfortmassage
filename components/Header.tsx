@@ -5,7 +5,7 @@ import { regions } from '@/lib/regions';
 
 // 시·도 단위 큰 지역 (서울, 경기, 인천, 부산 …) 을 데이터에서 자동 추출
 const CITIES = regions.flatMap((r) =>
-  r.cities.map((c) => ({ href: `/area/${c.slug}`, label: c.name }))
+  r.cities.map((c) => ({ href: `/${c.slug}`, label: c.name }))
 );
 
 const NAV = [
