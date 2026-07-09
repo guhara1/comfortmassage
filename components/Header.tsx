@@ -1,14 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { regions } from '@/lib/regions';
 
-const REGIONS = [
-  { href: '/region/capital', label: '수도권' },
-  { href: '/region/chungcheong', label: '충청권' },
-  { href: '/region/yeongnam', label: '영남권' },
-  { href: '/region/gangwon', label: '강원권' },
-  { href: '/region/jeju', label: '제주권' },
-];
+// 시·도 단위 큰 지역 (서울, 경기, 인천, 부산 …) 을 데이터에서 자동 추출
+const CITIES = regions.flatMap((r) =>
+  r.cities.map((c) => ({ href: `/area/${c.slug}`, label: c.name }))
+);
 
 const NAV = [
   { href: '/program', label: '프로그램' },
@@ -58,14 +56,14 @@ export default function Header() {
                 </svg>
               </button>
               {regionOpen && (
-                <div className="absolute left-0 top-full w-40 bg-white border border-gray-200 rounded-lg shadow-lg py-2">
-                  {REGIONS.map((r) => (
+                <div className="absolute left-0 top-full w-[26rem] bg-white border border-gray-200 rounded-lg shadow-lg p-3 grid grid-cols-4 gap-1">
+                  {CITIES.map((c) => (
                     <a
-                      key={r.href}
-                      href={r.href}
-                      className="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition"
+                      key={c.href}
+                      href={c.href}
+                      className="block px-2 py-2 text-center text-gray-700 hover:bg-orange-50 hover:text-orange-500 rounded transition"
                     >
-                      {r.label}
+                      {c.label}
                     </a>
                   ))}
                 </div>
@@ -129,16 +127,18 @@ export default function Header() {
             <p className="px-2 pt-2 pb-1 text-xs font-semibold text-gray-400 uppercase">
               지역별 안내
             </p>
-            {REGIONS.map((r) => (
-              <a
-                key={r.href}
-                href={r.href}
-                className="block px-2 py-2 text-gray-700 hover:text-orange-500 rounded transition"
-                onClick={() => setMobileOpen(false)}
-              >
-                {r.label}
-              </a>
-            ))}
+            <div className="grid grid-cols-3 gap-1">
+              {CITIES.map((c) => (
+                <a
+                  key={c.href}
+                  href={c.href}
+                  className="block px-2 py-2 text-center text-gray-700 hover:text-orange-500 rounded transition"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {c.label}
+                </a>
+              ))}
+            </div>
             <div className="border-t border-gray-100 my-2" />
             {NAV.map((item) => (
               <a
