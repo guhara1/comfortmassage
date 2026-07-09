@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MobilePhoneIcon from "@/components/MobilePhoneIcon";
 
@@ -67,6 +68,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col bg-white">
+        <Header />
         <div className="flex-1">{children}</div>
         <Footer />
         <MobilePhoneIcon />
